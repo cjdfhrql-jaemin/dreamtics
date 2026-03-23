@@ -15,7 +15,6 @@ export default function Main({ data }) {
 <div class="content-ad">
   <ins class="adsbygoogle"style="display:block" data-ad-client="ca-pub-1216027646063680" data-ad-slot="3177453636" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </div>
-
 <div id="result"></div>
 
 <script>

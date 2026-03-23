@@ -13,8 +13,7 @@ export default function Terms({ data }) {
             <section class="policy-item">
               <strong>3. ${lang.terms3t}</strong><p>${lang.terms3c1}</p>
               <ul>
-                <li>${lang.terms3c2}</li>
-                <li>${lang.terms3c3}</li>
+                <li>${lang.terms3c}</li>
               </ul>
             </section>
             <section class="policy-item"><strong>4. ${lang.terms4t}</strong><p>${lang.terms4c}</p></section>

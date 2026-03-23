@@ -21,7 +21,6 @@ app.use('*', async (c, next) => {
 });
 
 app.get('/assets/*', serveStatic({ root: './' }))
-
 app.get('/', (c) => {
   const data = c.get('data');
   const host = c.req.header('host') || 'chktime.com';
@@ -34,7 +33,6 @@ app.get('/', (c) => {
   );
 });
 
-
 app.post('/api/analyze', async (c) => {
   try {
     const { dream, targetLangName = "Korean" } = await c.req.json();
@@ -43,56 +41,6 @@ app.post('/api/analyze', async (c) => {
   } catch(e) {
     console.log(e);
     return c.json({error:"에러 : " + e.message}, 500)
-  }
-});
-
-app.post('/api/server-info', async (c) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-  try {
-    const body = await c.req.json().catch(() => ({}));
-    const inputUrl = body.url || "";
-    let domain = inputUrl.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
-
-    if (!domain) {
-      throw new Error("Invalid Domain");
-    }
-
-    // 병렬 호출
-    const [originRes, geoRes] = await Promise.all([
-      fetch("https://" + domain, { 
-        method: 'HEAD', 
-        cache: 'no-store',
-        signal: controller.signal 
-      }),
-      fetch(`http://ip-api.com/json/${domain}?fields=status,message,lat,lon,city,country,timezone`, {
-        signal: controller.signal
-      })
-    ]);
-
-    const geoData = await geoRes.json();
-    if (geoData.status === "fail") {
-      throw new Error(geoData.message);
-    }
-
-    const dateHeader = originRes.headers.get('date');
-
-    return c.json({
-      dateHeader: dateHeader,
-      lat: geoData.lat,
-      lng: geoData.lon,
-      city: geoData.city,
-      country: geoData.country,
-      timezone: geoData.timezone
-    });
-
-  } catch (e) {
-    const errorMessage = e.name === 'AbortError' ? 'Timeout' : e.message;
-    return c.json({ error: errorMessage }, 400);
-
-  } finally {
-    clearTimeout(timeoutId);
   }
 });
 
@@ -135,10 +83,22 @@ app.get('/:page', (c) => {
   const data = c.get('data');
   const host = c.req.header('host') || 'chktime.com';
 
-  const Component = Pages[page];
+  let Component = Pages[page];
+  let found = false;
 
   if (!Component) {
-    return c.notFound();
+
+    const opage = page.replace(/(.*?)\.(.*)/, "$1");
+    Component = Pages[opage];
+    if(!Component) {
+      found = true;
+    } else {
+      found = false
+    }
+  }
+
+  if(!found) {
+     return c.notFound();
   }
 
   return c.html(
