@@ -1,0 +1,15 @@
+"$schema" = "node_modules/wrangler/config-schema.json"
+name = "dreamtics"
+main = "src/index.js"
+compatibility_date = "2026-03-10"
+compatibility_flags = [ "nodejs_compat" ]
+
+[observability]
+enabled = true
+
+[assets]
+directory = "./public"
+
+[[routes]]
+pattern = "dreamtics.net"
+custom_domain = true
