@@ -75,7 +75,7 @@ app.get('/ws', upgradeWebSocket((c) => {
     onClose: () => {
       if (timer) clearTimeout(timer);
       console.log(`[WS] ${domain} 연결 종료 및 타이머 정리`);
-    }
+    } 
   };
 }));
 
