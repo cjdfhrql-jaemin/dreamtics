@@ -6,6 +6,7 @@ import { analyzeDream } from './analyze.js';
 import { getLanguage } from './functions/lang.js'
 import { Pages } from './pages/index.js'
 import { Layout } from './layout.jsx'
+import { handleBase } from './pages/base.js'
 
 /** @jsx jsx */
 import { jsx } from 'hono/jsx'
@@ -78,34 +79,34 @@ app.get('/ws', upgradeWebSocket((c) => {
   };
 }));
 
-app.get('/:page', (c) => {
-  const page = c.req.param('page').toLowerCase();
+function route(c) {
+  const { page, ext } = c.req.param();
   const data = c.get('data');
   const host = c.req.header('host') || 'chktime.com';
+  const url = new URL(c.req.url);
 
-  let Component = Pages[page];
-  let found = false;
+  // 1. 우선 handleBase(SEO/시스템 파일)인지 먼저 확인 (우선순위 높음)
+  const baseResponse = handleBase(url);
+  if (baseResponse) return baseResponse;
+
+  // 2. 일반 페이지 컴포넌트 확인
+  const pageKey = page.toLowerCase();
+  let Component = Pages[pageKey];
 
   if (!Component) {
-
-    const opage = page.replace(/(.*?)\.(.*)/, "$1");
-    Component = Pages[opage];
-    if(!Component) {
-      found = true;
-    } else {
-      found = false
-    }
-  }
-
-  if(!found) {
-     return c.notFound();
+    return c.notFound();
   }
 
   return c.html(
-<Layout title={host}>
-  <Component data={data} />
-</Layout>
+    <Layout title={host}>
+      <Component data={data} />
+    </Layout>
   );
-});
+}
+
+// 라우트 등록
+app.get('/:page', route);
+app.get('/:page/:ext', route);
+app.get('/.well-known/:file', route);
 
 export default app
